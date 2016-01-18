@@ -1,6 +1,12 @@
 function! smartinput_endwise#define_default_rules()
   call s:initialize()
 
+  " regular expression pattern varialbes {{{
+    let pat_str_qw = '"\%(\%(\\"\|\\\\\|[^"]\)*\)\@>"'
+    let pat_str_qs = "'" . '\%(\%(\\' . "'" . '\|\\\\\|[^' . "'" . ']\)*\)\@>' ."'"
+    let pat_not_q = '[^"' . "'" . ']'
+  " }}}
+
   " vim-rules {{{
   for at in ['fu', 'fun', 'func', 'funct', 'functi', 'functio', 'function', 'if', 'wh', 'whi', 'whil', 'while', 'for', 'try']
     call s:define_vim_rule(at)
@@ -25,6 +31,29 @@ function! smartinput_endwise#define_default_rules()
   call s:define_rule(['sh', 'zsh'], '^\s*if\>.*\%#', 'fi', '')
   call s:define_rule(['sh', 'zsh'], '^\s*case\>.*\%#', 'esac', '')
   call s:define_rule(['sh', 'zsh'], '\%(^\s*#.*\)\@<!do\>.*\%#', 'done', '')
+  " }}}
+
+  " lua rules {{{
+    let pat_lua_func = '^' . pat_not_q . '*\zs\%(\%(' . pat_str_qw . '\|' . pat_str_qs . '\)*' . pat_not_q . '\)*\<function\>\%(.*\<end\>\)\@!.*\%#'
+    let pat_lua_block = '\%(do\|then\)\>\s*\%#'
+    let pat_lua_comment = '^' . pat_not_q . '*\zs\%(\%(' . pat_str_qw . '\|' . pat_str_qs . '\)*' . pat_not_q . '\)*--.*\<\%(function\|then\|do\)\>\%(.*\<end\>\)\@!.*\%#'
+    call s:define_rule('lua', pat_lua_func, 'end', '')
+    call s:define_rule('lua', pat_lua_block, 'end', [ 'String', ])
+    call smartinput#define_rule({
+          \ 'at' : pat_lua_comment,
+          \ 'char' : '<CR>',
+          \ 'filetype' : ['lua'],
+          \ 'input' : s:cr_key,
+          \})
+    unlet pat_lua_func
+    unlet pat_lua_block
+    unlet pat_lua_comment
+    " }}}
+
+    " Cleanup of varialbes
+    unlet pat_str_qw
+    unlet pat_str_qs
+    unlet pat_not_q
   " }}}
 endfunction
 
@@ -66,9 +95,9 @@ function! s:define_rule(filetype, pattern, end, ignore_syntax)
 
   if !empty(a:ignore_syntax)
     let ignore_rule = copy(rule)
-    if type(a:syntax) == type('')
+    if type(a:ignore_syntax) == type('')
       let ignore_rule.syntax = [a:ignore_syntax]
-    elseif type(a:syntax) == type([])
+    elseif type(a:ignore_syntax) == type([])
       let ignore_rule.syntax = a:ignore_syntax
     end
     let ignore_rule.input = s:cr_key

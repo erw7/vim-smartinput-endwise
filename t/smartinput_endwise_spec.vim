@@ -9,6 +9,7 @@ function! ToBeExpandedTo(raw, ...)
   execute "normal! i" . a:raw
   execute "normal A\<CR>"
   let actual = getline(1, '$')
+
   let expected = a:000
   if actual == expected
     return 1
@@ -256,11 +257,11 @@ describe 'smartinput_endwise'
 
     it 'case'
       " this indentation is strange but endwise compatible
-      Expect 'case' to_be_expanded_to 'case', '', '  esac'
+      Expect 'case' to_be_expanded_to 'case', '', 'esac'
     end
 
     it 'typical case'
-      Expect 'case "$var" in' to_be_expanded_to 'case "$var" in', '', '  esac'
+      Expect 'case "$var" in' to_be_expanded_to 'case "$var" in', '', 'esac'
     end
 
     it 'do'
@@ -280,6 +281,57 @@ describe 'smartinput_endwise'
     it 'while'
       Expect 'while "$var"; do' to_be_expanded_to 'while "$var"; do', '', 'done'
     end
+  end
+  " }}}
+
+  " lua {{{
+  describe 'lua'
+
+    before
+      new +setf\ lua
+      setl formatoptions-=r shiftwidth=2
+    end
+
+    after
+      close!
+    end
+
+    it 'typical function'
+      Expect 'function hoge()' to_be_expanded_to 'function hoge()', '', 'end'
+    end
+
+    it 'typical function after string'
+      Expect '"string function" function hoge()' to_be_expanded_to '"string function" function hoge()', '', 'end'
+    end
+
+    it 'typical function after strings'
+      Expect '"string function" ' . "'string'" . '"string" function hoge()' to_be_expanded_to '"string function" ' . "'string'" . '"string" function hoge()', '', 'end'
+    end
+
+    it 'typical function after strings contain escape doble quote'
+      Expect '"string function\" string" function hoge()' to_be_expanded_to '"string function\" string" function hoge()', '', 'end'
+    end
+
+    it 'function but in comment'
+      Expect '--function' to_be_not_expanded
+    end
+
+    it 'function but typo'
+      Expect 'xfunction hoge()' to_be_not_expanded
+    end
+
+    it 'typical then'
+      Expect 'if a== bar("end") then' to_be_expanded_to 'if a== bar("end") then', '', 'end'
+    end
+
+    it 'then but in comment'
+      Expect '--then' to_be_not_expanded
+    end
+
+    " A syntax should become String, but it becomes Constant, and a test fails.
+    " it 'then but in string'
+    "   Expect '"then' to_be_not_expanded
+    " end
   end
   " }}}
 end
