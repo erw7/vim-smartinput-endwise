@@ -27,7 +27,7 @@ call vspec#customize_matcher('to_be_not_expanded', function('ToBeNotExpanded'))
 
 describe 'smartinput_endwise'
 
-  " vim {{{
+  " vim "{{{
   describe 'vim'
 
     before
@@ -297,19 +297,19 @@ describe 'smartinput_endwise'
     end
 
     it 'typical function'
-      Expect 'function hoge()' to_be_expanded_to 'function hoge()', '', 'end'
+      Expect 'function foo()' to_be_expanded_to 'function foo()', '', 'end'
     end
 
     it 'typical function after string'
-      Expect '"string function" function hoge()' to_be_expanded_to '"string function" function hoge()', '', 'end'
+      Expect '"string function" function foo()' to_be_expanded_to '"string function" function foo()', '', 'end'
     end
 
     it 'typical function after strings'
-      Expect '"string function" ' . "'string'" . '"string" function hoge()' to_be_expanded_to '"string function" ' . "'string'" . '"string" function hoge()', '', 'end'
+      Expect '"string function" ' . "'string'" . '"string" function foo()' to_be_expanded_to '"string function" ' . "'string'" . '"string" function foo()', '', 'end'
     end
 
     it 'typical function after strings contain escape doble quote'
-      Expect '"string function\" string" function hoge()' to_be_expanded_to '"string function\" string" function hoge()', '', 'end'
+      Expect '"string function\" string" function foo()' to_be_expanded_to '"string function\" string" function foo()', '', 'end'
     end
 
     it 'function but in comment'
@@ -317,7 +317,7 @@ describe 'smartinput_endwise'
     end
 
     it 'function but typo'
-      Expect 'xfunction hoge()' to_be_not_expanded
+      Expect 'xfunction foo()' to_be_not_expanded
     end
 
     it 'typical then'
@@ -332,6 +332,84 @@ describe 'smartinput_endwise'
     " it 'then but in string'
     "   Expect '"then' to_be_not_expanded
     " end
+  end
+  " }}}
+
+  " vb {{{
+  describe 'vb'
+
+    before
+      new +setf\ vb
+      setl formatoptions-=r shiftwidth=2
+    end
+
+    after
+      close!
+    end
+
+    it 'typical Class'
+      Expect 'Class foo' to_be_expanded_to 'Class foo', '', 'End Class'
+    end
+
+    it 'typical Class after string'
+      Expect '"string Class" Class foo' to_be_expanded_to '"string Class" Class foo', '', 'End Class'
+    end
+
+    it 'typical Class after strings'
+      Expect '"string Class" "string" Class foo' to_be_expanded_to '"string Class" "string" Class foo', '', 'End Class'
+    end
+
+    it 'typical Class after strings contain escape doble quote'
+      Expect '"string Class"" string" Class foo' to_be_expanded_to '"string Class"" string" Class foo', '', 'End Class'
+    end
+
+    it 'typical Class mixed case'
+      Expect 'cLaSs foo' to_be_expanded_to 'cLaSs foo', '', 'End Class'
+    end
+
+     it 'Class but in string'
+       Expect '"Class' to_be_not_expanded
+     end
+
+    it 'Class but typo'
+      Expect 'xClass foo' to_be_not_expanded
+    end
+
+    it 'typical Enum with accessmodifier and datatype'
+      Expect 'Public Enum As Intger' to_be_expanded_to 'Public Enum As Intger', '', 'End Enum'
+    end
+
+    it 'typical Function'
+      Expect 'Function foo()' to_be_expanded_to 'Function foo()', '', 'End Function'
+    end
+
+    it 'typical Module'
+      Expect 'Module foo' to_be_expanded_to 'Module foo', '', 'End Module'
+    end
+
+    it 'typical Namespace'
+      Expect 'Namespace foo' to_be_expanded_to 'Namespace foo', '', 'End Namespace'
+    end
+
+    it 'typical Sub'
+      Expect 'Sub foo(arg As String)' to_be_expanded_to 'Sub foo(arg As String)', '', 'End Sub'
+    end
+
+    it 'typical Property'
+      Expect 'Property Get foo' to_be_expanded_to 'Property Get foo', '', 'End Property'
+    end
+
+    it 'typical If'
+      Expect 'If a=0 Then' to_be_expanded_to 'If a=0 Then', '', 'End If'
+    end
+
+    it 'typical For'
+      Expect 'For Each item in col' to_be_expanded_to 'For Each item in col', '', 'Next'
+    end
+
+    it 'typical Select'
+      Expect 'Select Case' to_be_expanded_to 'Select Case', '', 'End Select'
+    end
   end
   " }}}
 end
