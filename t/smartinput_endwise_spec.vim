@@ -297,7 +297,7 @@ describe 'smartinput_endwise'
     end
 
     it 'typical function'
-      Expect 'function foo()' to_be_expanded_to 'function foo()', '', 'end'
+      Expect 'function foo(a)' to_be_expanded_to 'function foo(a)', '', 'end'
     end
 
     it 'typical function after string'
@@ -316,16 +316,23 @@ describe 'smartinput_endwise'
       Expect '--function' to_be_not_expanded
     end
 
+    it 'function but in block comment'
+      Expect '--[[function foo()' to_be_expanded_to '--[[', 'function foo()', ''
+    end
     it 'function but typo'
       Expect 'xfunction foo()' to_be_not_expanded
     end
 
     it 'typical then'
-      Expect 'if a== bar("end") then' to_be_expanded_to 'if a== bar("end") then', '', 'end'
+      Expect 'if a==bar("end") then' to_be_expanded_to 'if a==bar("end") then', '', 'end'
     end
 
     it 'then but in comment'
       Expect '--then' to_be_not_expanded
+    end
+
+    it 'then but in block comment'
+      Expect '--[[if a==0 then' to_be_expanded_to '--[[', 'if a==0 then', ''
     end
 
     " A syntax should become String, but it becomes Constant, and a test fails.
