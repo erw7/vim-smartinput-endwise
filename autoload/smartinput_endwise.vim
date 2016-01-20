@@ -29,9 +29,9 @@ function! smartinput_endwise#define_default_rules()
   " }}}
 
   " sh rules {{{
-  call s:define_rule(['sh', 'zsh'], '^\s*if\>.*\%#', 'fi', '', '')
-  call s:define_rule(['sh', 'zsh'], '^\s*case\>.*\%#', 'esac', '', '')
-  call s:define_rule(['sh', 'zsh'], '\%(^\s*#.*\)\@<!do\>.*\%#', 'done', '', '')
+  call s:define_rule(['sh', 'zsh'], '^\s*if\>.*\%#', 'fi', [ 'String', ], '')
+  call s:define_rule(['sh', 'zsh'], '^\s*case\>.*\%#', 'esac', [ 'String', ], '')
+  call s:define_rule(['sh', 'zsh'], '\%(^\s*#.*\)\@<!do\>.*\%#', 'done', [  'String', ], '')
   " }}}
 
   " lua rules {{{

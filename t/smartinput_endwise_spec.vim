@@ -255,14 +255,23 @@ describe 'smartinput_endwise'
       Expect '# if' to_be_not_expanded
     end
 
+    " A syntax should become String in real env, but it becomes Constant in test env, and a test fails.
+    "it 'if in a multiline comment'
+    "  Expect '<<EOFif' to_be_expanded_to '<<EOF', 'if', ''
+    "end
+
     it 'case'
-      " this indentation is strange but endwise compatible
       Expect 'case' to_be_expanded_to 'case', '', 'esac'
     end
 
     it 'typical case'
       Expect 'case "$var" in' to_be_expanded_to 'case "$var" in', '', 'esac'
     end
+
+    " A syntax should become String in real env, but it becomes Constant in test env, and a test fails.
+    "it 'case in a multiline comment'
+    "  Expect '<<EOFcase' to_be_expanded_to '<<EOF', 'case', ''
+    "end
 
     it 'do'
       Expect 'do' to_be_expanded_to 'do', '', 'done'
@@ -272,10 +281,9 @@ describe 'smartinput_endwise'
       Expect '# do' to_be_not_expanded
     end
 
-    " FIXME: Can not obtain syntax as a Comment
+    " A syntax should become String in real env, but it becomes Constant in test env, and a test fails.
     " it 'do in a multiline comment'
-    "   let l:expect = ": <<\<CR>do"
-    "   Expect l:expect to_be_not_expanded
+    "   Expect '<<EOFdo' to_be_expanded_to '<<EOF', 'do', ''
     " end
 
     it 'while'
@@ -335,7 +343,7 @@ describe 'smartinput_endwise'
       Expect '--[[if a==0 then' to_be_expanded_to '--[[', 'if a==0 then', ''
     end
 
-    " A syntax should become String, but it becomes Constant, and a test fails.
+    " A syntax should become String in real env, but it becomes Constant in test env, and a test fails.
     " it 'then but in string'
     "   Expect '"then' to_be_not_expanded
     " end
