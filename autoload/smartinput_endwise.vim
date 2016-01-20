@@ -10,7 +10,7 @@ function! smartinput_endwise#define_default_rules()
 
   " vim-rules {{{
   for word in ['fu', 'fun', 'func', 'funct', 'functi', 'functio', 'function', 'if', 'wh', 'whi', 'whil', 'while', 'for', 'try']
-    call s:define_rule('vim', '^\s*&\>.*\%#', 'end&', '', word)
+    call s:define_rule('vim', '^\s*&word&\>.*\%#', 'end&word&', '', word)
   endfor
   unlet word
   " }}}
@@ -52,26 +52,18 @@ function! smartinput_endwise#define_default_rules()
     " }}}
 
     " VB rules {{{
-    let pat_vb_bol = '\c^\s*\zs\%(\%(' . pat_vb_str_qw . '\)*[^"]\)*'
-    let pat_vb_eol = '\%([^' . "'" . ']*\<End\>\s\+\<&\>\)\@!.*\%#'
-    let pat_vb_comment = '\c^\s*\zs\%(\%(' . pat_vb_str_qw . '\)*[^"]\)*' . "'" . '.*\<\%(Class\|Enum\|Function\|Module\|Namespace\|Sub\|Property\|Do\|If\|For\Select\)\>.*\%#'
+    let pat_vb_bol = '\c^\s*\zs\%(\%(' . pat_vb_str_qw . '\)*[^"' . "'" . ']\)*'
+    let pat_vb_eol = '\%([^' . "'" . ']*\<&end&\>\)\@!.*\%#'
     for word in ['Class', 'Enum', 'Function', 'Module', 'Namespace', 'Sub', ]
-      call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&\>' . pat_vb_eol, 'End &', '', word)
+      call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&word&\>' . pat_vb_eol, 'End &word&', '', word)
     endfor
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&\>\s\+\<\%(Get\|Let\|Set\)\>' . pat_vb_eol, 'End &', '', 'Property')
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<Do\>\%([^' . "'" .']*\<&\>\)\@!.*\%#' , '&', '', 'Loop')
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&\>.*\<Then\>' . pat_vb_eol, 'End &', '', 'If')
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<For\>\%([^' . "'" .']*\<&\>\)\@!.*\%#' , '&', '', 'Next')
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&\s\+Case\>\%([^' . "'" .']*\<End\s\+&\>\)\@!.*\%#' , 'End &', '', 'Select')
-    call smartinput#define_rule({
-          \ 'at' : pat_vb_comment,
-          \ 'char' : '<CR>',
-          \ 'filetype' : ['vb', 'vbnet', 'aspvbs'],
-          \ 'input' : s:cr_key
-          \})
+    call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&word&\>\s\+\<\%(Get\|Let\|Set\)\>' . pat_vb_eol, 'End &word&', '', 'Property')
+    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<Do\>' . pat_vb_eol, 'Loop', '', '')
+    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&word&\>[^' . "'" .']*\<Then\>' . pat_vb_eol, 'End &word&', '', 'If')
+    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<For\>' . pat_vb_eol, 'Next', '', '')
+    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&word&\s\+Case\>' . pat_vb_eol, 'End &word&', '', 'Select')
     unlet pat_vb_bol
     unlet pat_vb_eol
-    unlet pat_vb_comment
     unlet word
     " }}}
 
@@ -102,14 +94,17 @@ endfunction
 
 function! s:define_rule(filetype, pattern, end, ignore_syntax, word)
   if a:word != ''
+    let end = substitute(a:end, '&word&', a:word, 'g')
+    let pat_end = substitute(end, ' ', '\>\s\+\<', 'g')
     let rule = {
-    \ 'at': substitute(a:pattern, '&', a:word, 'g'),
+    \ 'at': substitute(substitute(a:pattern, '&word&', a:word, 'g'), '&end&', pat_end, 'g'),
     \ 'char': '<CR>',
-    \ 'input': s:cr_key . substitute(a:end, '&', a:word, 'g') . '<Esc>O'
+    \ 'input': s:cr_key . end . '<Esc>O'
     \ }
   else
+    let pat_end = substitute(a:end, ' ', '\>\s\+\<', 'g')
     let rule = {
-    \ 'at': a:pattern,
+    \ 'at': substitute(a:pattern, '&end&', pat_end, 'g'),
     \ 'char': '<CR>',
     \ 'input': s:cr_key . a:end . '<Esc>O'
     \ }
