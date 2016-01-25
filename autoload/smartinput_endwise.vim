@@ -3,8 +3,8 @@ function! smartinput_endwise#define_default_rules()
 
   " regular expression pattern varialbes {{{
     let pat_str_qw = '"\%(\%(\\"\|\\\\\|[^"]\)*\)\@>"'
-    let pat_str_qs = "'" . '\%(\%(\\' . "'" . '\|\\\\\|[^' . "'" . ']\)*\)\@>' ."'"
-    let pat_not_q = '[^"' . "'" . ']'
+    let pat_str_qs = '''\%(\%(\\''\|\\\\\|[^'']\)*\)\@>'''
+    let pat_not_q = '[^"'']'
     let pat_vb_str_qw = '"\%(\%(""\|[^"]\)*\)\@>"'
   " }}}
 
