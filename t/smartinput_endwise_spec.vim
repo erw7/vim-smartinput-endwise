@@ -427,4 +427,37 @@ describe 'smartinput_endwise'
     end
   end
   " }}}
+
+  " cmake {{{
+  describe 'cmake'
+
+    before
+      new +setf\ cmake
+      setl formatoptions-=r shiftwidth=2
+    end
+
+    after
+      close!
+    end
+
+    it 'typical function'
+      Expect 'function(test arg1 arg2)' to_be_expanded_to 'function(test arg1 arg2)', '', 'endfunction()'
+    end
+
+    it 'typical foreach'
+      Expect 'foreach(loop_var IN ITEMS a b)' to_be_expanded_to 'foreach(loop_var IN ITEMS a b)', '', 'endforeach()'
+    end
+
+    it 'typical if'
+      Expect 'if(TRUE)' to_be_expanded_to 'if(TRUE)', '', 'endif()'
+    end
+
+    it 'typical macro'
+      Expect 'macro(test arg1 arg2)' to_be_expanded_to 'macro(test arg1 arg2)', '', 'endmacro()'
+    end
+
+    it 'typical while'
+      Expect 'while(FALSE)' to_be_expanded_to 'while(FALSE)', '', 'endwhile()'
+    end
+  " }}}
 end

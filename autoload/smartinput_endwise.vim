@@ -67,6 +67,13 @@ function! smartinput_endwise#define_default_rules()
   unlet word
   " }}}
 
+  " cmake-rules {{{
+  for word in ['function', 'foreach', 'if', 'macro', 'while', ]
+    call s:define_rule('cmake', '^\s*&word&(.*)\%#', 'end&word&()', '', word)
+  endfor
+  unlet word
+  " }}}
+
   " Cleanup of varialbes
   unlet pat_str_qw
   unlet pat_str_qs
