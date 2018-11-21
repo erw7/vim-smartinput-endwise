@@ -1,5 +1,5 @@
 /.vim-flavor
-/VimFlavor.lock
+/Flavorfile.lock
 /session.vim
 /gems
 /.bundle
