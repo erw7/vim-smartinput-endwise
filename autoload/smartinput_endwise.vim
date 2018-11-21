@@ -2,10 +2,10 @@ function! smartinput_endwise#define_default_rules()
   call s:initialize()
 
   " regular expression pattern varialbes {{{
-    let pat_str_qw = '"\%(\%(\\"\|\\\\\|[^"]\)*\)\@>"'
-    let pat_str_qs = '''\%(\%(\\''\|\\\\\|[^'']\)*\)\@>'''
-    let pat_not_q = '[^"'']'
-    let pat_vb_str_qw = '"\%(\%(""\|[^"]\)*\)\@>"'
+  let pat_str_qw = '"\%(\%(\\"\|\\\\\|[^"]\)*\)\@>"'
+  let pat_str_qs = '''\%(\%(\\''\|\\\\\|[^'']\)*\)\@>'''
+  let pat_not_q = '[^"'']'
+  let pat_vb_str_qw = '"\%(\%(""\|[^"]\)*\)\@>"'
   " }}}
 
   " vim-rules {{{
@@ -20,12 +20,12 @@ function! smartinput_endwise#define_default_rules()
   call s:define_rule('ruby', '^\s*\%(begin\)\s*\%#', 'end', '', '')
   call s:define_rule('ruby', '\%(^\s*#.*\)\@<!do\%(\s*|\k\+\%(\s*,\s*\k\+\)*|\)\?\s*\%#', 'end', '', '')
   call smartinput#define_rule({
-  \ 'at': '\<\%(if\|unless\)\>.*\%#',
-  \ 'char': '<CR>',
-  \ 'input': s:cr_key . 'end<Esc>O',
-  \ 'filetype': ['ruby'],
-  \ 'syntax': ['rubyConditionalExpression']
-  \ })
+        \ 'at': '\<\%(if\|unless\)\>.*\%#',
+        \ 'char': '<CR>',
+        \ 'input': s:cr_key . 'end<Esc>O',
+        \ 'filetype': ['ruby'],
+        \ 'syntax': ['rubyConditionalExpression']
+        \ })
   " }}}
 
   " sh rules {{{
@@ -35,42 +35,42 @@ function! smartinput_endwise#define_default_rules()
   " }}}
 
   " lua rules {{{
-    let pat_lua_func = '^' . pat_not_q . '*\zs\%(\%(' . pat_str_qw . '\|' . pat_str_qs . '\)*' . pat_not_q . '\)*\<function\>\%(.*\<end\>\)\@!.*\%#'
-    let pat_lua_block = '\%(do\|then\)\>\s*\%#'
-    let pat_lua_comment = '^' . pat_not_q . '*\zs\%(\%(' . pat_str_qw . '\|' . pat_str_qs . '\)*' . pat_not_q . '\)*--.*\<\%(function\|then\|do\)\>\%(.*\<end\>\)\@!.*\%#'
-    call s:define_rule('lua', pat_lua_func, 'end', [ 'Comment', ], '')
-    call s:define_rule('lua', pat_lua_block, 'end', [ 'String', 'Comment' ], '')
-    call smartinput#define_rule({
-          \ 'at' : pat_lua_comment,
-          \ 'char' : '<CR>',
-          \ 'filetype' : ['lua'],
-          \ 'input' : s:cr_key,
-          \})
-    unlet pat_lua_func
-    unlet pat_lua_block
-    unlet pat_lua_comment
-    " }}}
+  let pat_lua_func = '^' . pat_not_q . '*\zs\%(\%(' . pat_str_qw . '\|' . pat_str_qs . '\)*' . pat_not_q . '\)*\<function\>\%(.*\<end\>\)\@!.*\%#'
+  let pat_lua_block = '\%(do\|then\)\>\s*\%#'
+  let pat_lua_comment = '^' . pat_not_q . '*\zs\%(\%(' . pat_str_qw . '\|' . pat_str_qs . '\)*' . pat_not_q . '\)*--.*\<\%(function\|then\|do\)\>\%(.*\<end\>\)\@!.*\%#'
+  call s:define_rule('lua', pat_lua_func, 'end', [ 'Comment', ], '')
+  call s:define_rule('lua', pat_lua_block, 'end', [ 'String', 'Comment' ], '')
+  call smartinput#define_rule({
+        \ 'at' : pat_lua_comment,
+        \ 'char' : '<CR>',
+        \ 'filetype' : ['lua'],
+        \ 'input' : s:cr_key,
+        \})
+  unlet pat_lua_func
+  unlet pat_lua_block
+  unlet pat_lua_comment
+  " }}}
 
-    " VB rules {{{
-    let pat_vb_bol = '\c^\s*\zs\%(\%(' . pat_vb_str_qw . '\)*[^"' . "'" . ']\)*'
-    let pat_vb_eol = '\%([^' . "'" . ']*\<&end&\>\)\@!.*\%#'
-    for word in ['Class', 'Enum', 'Function', 'Module', 'Namespace', 'Sub', ]
-      call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&word&\>' . pat_vb_eol, 'End &word&', '', word)
-    endfor
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&word&\>\s\+\<\%(Get\|Let\|Set\)\>' . pat_vb_eol, 'End &word&', '', 'Property')
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<Do\>' . pat_vb_eol, 'Loop', '', '')
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&word&\>[^' . "'" .']*\<Then\>' . pat_vb_eol, 'End &word&', '', 'If')
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<For\>' . pat_vb_eol, 'Next', '', '')
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&word&\s\+Case\>' . pat_vb_eol, 'End &word&', '', 'Select')
-    unlet pat_vb_bol
-    unlet pat_vb_eol
-    unlet word
-    " }}}
+  " VB rules {{{
+  let pat_vb_bol = '\c^\s*\zs\%(\%(' . pat_vb_str_qw . '\)*[^"' . "'" . ']\)*'
+  let pat_vb_eol = '\%([^' . "'" . ']*\<&end&\>\)\@!.*\%#'
+  for word in ['Class', 'Enum', 'Function', 'Module', 'Namespace', 'Sub', ]
+    call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&word&\>' . pat_vb_eol, 'End &word&', '', word)
+  endfor
+  call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&word&\>\s\+\<\%(Get\|Let\|Set\)\>' . pat_vb_eol, 'End &word&', '', 'Property')
+  call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<Do\>' . pat_vb_eol, 'Loop', '', '')
+  call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&word&\>[^' . "'" .']*\<Then\>' . pat_vb_eol, 'End &word&', '', 'If')
+  call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<For\>' . pat_vb_eol, 'Next', '', '')
+  call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&word&\s\+Case\>' . pat_vb_eol, 'End &word&', '', 'Select')
+  unlet pat_vb_bol
+  unlet pat_vb_eol
+  unlet word
+  " }}}
 
-    " Cleanup of varialbes
-    unlet pat_str_qw
-    unlet pat_str_qs
-    unlet pat_not_q
+  " Cleanup of varialbes
+  unlet pat_str_qw
+  unlet pat_str_qs
+  unlet pat_not_q
   " }}}
 endfunction
 
@@ -97,17 +97,17 @@ function! s:define_rule(filetype, pattern, end, ignore_syntax, word)
     let end = substitute(a:end, '&word&', a:word, 'g')
     let pat_end = substitute(end, ' ', '\>\s\+\<', 'g')
     let rule = {
-    \ 'at': substitute(substitute(a:pattern, '&word&', a:word, 'g'), '&end&', pat_end, 'g'),
-    \ 'char': '<CR>',
-    \ 'input': s:cr_key . end . '<Esc>O'
-    \ }
+          \ 'at': substitute(substitute(a:pattern, '&word&', a:word, 'g'), '&end&', pat_end, 'g'),
+          \ 'char': '<CR>',
+          \ 'input': s:cr_key . end . '<Esc>O'
+          \ }
   else
     let pat_end = substitute(a:end, ' ', '\>\s\+\<', 'g')
     let rule = {
-    \ 'at': substitute(a:pattern, '&end&', pat_end, 'g'),
-    \ 'char': '<CR>',
-    \ 'input': s:cr_key . a:end . '<Esc>O'
-    \ }
+          \ 'at': substitute(a:pattern, '&end&', pat_end, 'g'),
+          \ 'char': '<CR>',
+          \ 'input': s:cr_key . a:end . '<Esc>O'
+          \ }
   endif
 
   if type(a:filetype) == type('')
