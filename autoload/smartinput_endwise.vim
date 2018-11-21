@@ -1,4 +1,4 @@
-function! smartinput_endwise#define_default_rules()
+function! smartinput_endwise#define_default_rules() abort
   call s:initialize()
 
   " regular expression pattern varialbes {{{
@@ -81,7 +81,7 @@ function! smartinput_endwise#define_default_rules()
   " }}}
 endfunction
 
-function! s:initialize()
+function! s:initialize() abort
   if !exists('g:smartinput_endwise_avoid_neocon_conflict')
     let g:smartinput_endwise_avoid_neocon_conflict = 1
   endif
@@ -89,7 +89,7 @@ function! s:initialize()
   call smartinput#define_rule({'at': '\%#', 'char': '<CR>', 'input': s:cr_key})
 endfunction
 
-function! smartinput_endwise#_avoid_conflict_cr()
+function! smartinput_endwise#_avoid_conflict_cr() abort
   if exists('*neocomplete#close_popup') && g:smartinput_endwise_avoid_neocon_conflict
     return "\<C-r>=neocomplete#close_popup()\<CR>\<CR>"
   elseif exists('*neocomplcache#close_popup()') && g:smartinput_endwise_avoid_neocon_conflict
@@ -99,8 +99,8 @@ function! smartinput_endwise#_avoid_conflict_cr()
   endif
 endfunction
 
-function! s:define_rule(filetype, pattern, end, ignore_syntax, word)
-  if a:word != ''
+function! s:define_rule(filetype, pattern, end, ignore_syntax, word) abort
+  if a:word !=? ''
     let end = substitute(a:end, '&word&', a:word, 'g')
     let pat_end = substitute(end, ' ', '\>\s\+\<', 'g')
     let rule = {
