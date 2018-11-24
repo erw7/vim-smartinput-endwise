@@ -8,44 +8,82 @@ function! smartinput_endwise#define_default_rules() abort
   let pat_vb_str_qw = '"\%(\%(""\|[^"]\)*\)\@>"'
   " }}}
 
+  let rules = []
+
   " vim-rules {{{
-  for word in ['fu', 'fun', 'func', 'funct', 'functi', 'functio', 'function', 'if', 'wh', 'whi', 'whil', 'while', 'for', 'try']
-    call s:define_rule('vim', '^\s*&word&\>.*\%#', 'end&word&', '', word)
-  endfor
-  unlet word
+  let rules += [
+        \  { 'vim' :
+        \    [
+        \      {
+        \        'pattern' : '^\s*&word&\>.*\%#',
+        \        'end' : 'end&word%',
+        \        'word' : [ 'fu', 'fun', 'func', 'funct', 'functi', 'functio', 'function', 'if', 'wh', 'whi', 'whil', 'while', 'for', 'try', ],
+        \      },
+        \    ],
+        \  },
+        \]
   " }}}
 
   " ruby-rules {{{
-  call s:define_rule('ruby', '^\s*\%(module\|def\|class\|if\|unless\|for\|while\|until\|case\)\>\%(.*[^.:@$]\<end\>\)\@!.*\%#', 'end', '', '')
-  call s:define_rule('ruby', '^\s*\%(begin\)\s*\%#', 'end', '', '')
-  call s:define_rule('ruby', '\%(^\s*#.*\)\@<!do\%(\s*|\k\+\%(\s*,\s*\k\+\)*|\)\?\s*\%#', 'end', '', '')
-  call smartinput#define_rule({
-        \ 'at': '\<\%(if\|unless\)\>.*\%#',
-        \ 'char': '<CR>',
-        \ 'input': s:cr_key . 'end<Esc>O',
-        \ 'filetype': ['ruby'],
-        \ 'syntax': ['rubyConditionalExpression']
-        \ })
+  let rules += [
+        \  { 'ruby' :
+        \    [
+        \      { 'pattern' : '^\s*\%(module\|def\|class\|if\|unless\|for\|while\|until\|case\)\>\%(.*[^.:@$]\<end\>\)\@!.*\%#', },
+        \      { 'pattern' : '^\s*\%(begin\)\s*\%#', },
+        \      { 'pattern' : '\%(^\s*#.*\)\@<!do\%(\s*|\k\+\%(\s*,\s*\k\+\)*|\)\?\s*\%#', },
+        \      {
+        \        'pattern' : '\<\%(if\|unless\)\>.*\%#',
+        \        'location' : [ { 'filetype' : [ 'ruby', 'vim', ], 'syntax' : 'rubyConditionalExpression', }, ],
+        \      },
+        \    ],
+        \    'location' : [ { 'filetype' : 'ruby ', }, { 'filetype' : 'vim', 'syntax' : 'VimRubyRegion', }, ],
+        \  },
+        \]
   " }}}
 
   " sh rules {{{
-  call s:define_rule(['sh', 'zsh'], '^\s*if\>.*\%#', 'fi', [ 'String', ], '')
-  call s:define_rule(['sh', 'zsh'], '^\s*case\>.*\%#', 'esac', [ 'String', ], '')
-  call s:define_rule(['sh', 'zsh'], '\%(^\s*#.*\)\@<!do\>.*\%#', 'done', [  'String', ], '')
+  let rules += [
+        \  { 'sh,zsh' :
+        \    [
+        \      { 'pattern' : '^\s*if\>.*\%#', },
+        \      { 'pattern' : '^\s*case\>.*\%#', },
+        \      { 'pattern' : '\%(^\s*#.*\)\@<!do\>.*\%#', },
+        \    ],
+        \    'location' : [ { 'filetype' : [ 'sh', 'zsh' ], 'ignore_syntax' : 'String', }, ],
+        \  },
+        \]
   " }}}
 
   " lua rules {{{
   let pat_lua_func = '^' . pat_not_q . '*\zs\%(\%(' . pat_str_qw . '\|' . pat_str_qs . '\)*' . pat_not_q . '\)*\<function\>\%(.*\<end\>\)\@!.*\%#'
   let pat_lua_block = '\%(do\|then\)\>\s*\%#'
   let pat_lua_comment = '^' . pat_not_q . '*\zs\%(\%(' . pat_str_qw . '\|' . pat_str_qs . '\)*' . pat_not_q . '\)*--.*\<\%(function\|then\|do\)\>\%(.*\<end\>\)\@!.*\%#'
-  call s:define_rule('lua', pat_lua_func, 'end', [ 'Comment', ], '')
-  call s:define_rule('lua', pat_lua_block, 'end', [ 'String', 'Comment' ], '')
-  call smartinput#define_rule({
-        \ 'at' : pat_lua_comment,
-        \ 'char' : '<CR>',
-        \ 'filetype' : ['lua'],
-        \ 'input' : s:cr_key,
-        \})
+  let rules += [
+        \  { 'lua' :
+        \    [
+        \      {
+        \        'pattern' : pat_lua_func,
+        \        'location' :
+        \        [
+        \          { 'filetype' : 'lua', 'ignore_syntax' : 'Comment', },
+        \          { 'filetype' : 'vim', 'syntax' : 'VimLuaRegion', },
+        \        ],
+        \      },
+        \      {
+        \        'pattern' : pat_lua_block,
+        \        'location' :
+        \        [
+        \          { 'filetype' : 'lua', 'ignore_syntax' : [ 'String', 'Comment', ], },
+        \          { 'filetype' : 'vim', 'syntax' : 'VimLuaRegion', },
+        \        ],
+        \      },
+        \      {
+        \        'pattern' : pat_lua_comment,
+        \        'input' : s:cr_key,
+        \      },
+        \    ],
+        \  },
+        \]
   unlet pat_lua_func
   unlet pat_lua_block
   unlet pat_lua_comment
@@ -54,24 +92,56 @@ function! smartinput_endwise#define_default_rules() abort
   " VB rules {{{
   let pat_vb_bol = '\c^\s*\zs\%(\%(' . pat_vb_str_qw . '\)*[^"' . "'" . ']\)*'
   let pat_vb_eol = '\%([^' . "'" . ']*\<&end&\>\)\@!.*\%#'
-  for word in ['Class', 'Enum', 'Function', 'Module', 'Namespace', 'Sub', ]
-    call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&word&\>' . pat_vb_eol, 'End &word&', '', word)
-  endfor
-  call s:define_rule(['vb', 'vbnet', 'aspvbs'], pat_vb_bol . '\<&word&\>\s\+\<\%(Get\|Let\|Set\)\>' . pat_vb_eol, 'End &word&', '', 'Property')
-  call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<Do\>' . pat_vb_eol, 'Loop', '', '')
-  call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&word&\>[^' . "'" .']*\<Then\>' . pat_vb_eol, 'End &word&', '', 'If')
-  call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<For\>' . pat_vb_eol, 'Next', '', '')
-  call s:define_rule(['vb', 'vbnet', 'aspvbs'], '\c^\s*\zs\<&word&\s\+Case\>' . pat_vb_eol, 'End &word&', '', 'Select')
+  let rules += [
+        \  { 'vb,vbnet,aspvbs' :
+        \    [
+        \      {
+        \        'pattern' : pat_vb_bol . '\<&word&\>' . pat_vb_eol,
+        \        'end' : 'End &wrd&',
+        \        'word' : [ 'Class', 'Enum', 'Function', 'Module', 'Namespace', 'Sub', ],
+        \      },
+        \      {
+        \        'pattern' : pat_vb_bol . '\<&word&\>\s\+\<\%(Get\|Let\|Set\)\>' . pat_vb_eol,
+        \        'end' : 'End &word&',
+        \        'word' : 'Property',
+        \      },
+        \      {
+        \        'pattern' : '\c^\s*\zs\<Do\>' . pat_vb_eol,
+        \        'end' : 'Loop',
+        \      },
+        \      {
+        \        'pattern' : '\c^\s*\zs\<&word&\>[^' . "'" .']*\<Then\>' . pat_vb_eol,
+        \        'end' : 'End &word&',
+        \        'word' : 'If',
+        \      },
+        \      {
+        \        'pattern' : '\c^\s*\zs\<For\>' . pat_vb_eol,
+        \        'end' : 'Next',
+        \      },
+        \      {
+        \        'pattern' : '\c^\s*\zs\<&word&\s\+Case\>' . pat_vb_eol,
+        \        'end' : 'End &word&',
+        \        'word' : 'Select',
+        \      },
+        \    ],
+        \  },
+        \]
   unlet pat_vb_bol
   unlet pat_vb_eol
-  unlet word
   " }}}
 
   " cmake-rules {{{
-  for word in ['function', 'foreach', 'if', 'macro', 'while', ]
-    call s:define_rule('cmake', '^\s*&word&(.*)\%#', 'end&word&()', '', word)
-  endfor
-  unlet word
+  let rules += [
+        \  { 'cmake' :
+        \    [
+        \      {
+        \        'pattern' : '^\s*&word&(.*)\%#',
+        \        'end' : 'end&word%',
+        \        'word' : [ 'foreach', 'function', 'if', 'macro', 'while' ],
+        \      },
+        \    ],
+        \  },
+        \]
   " }}}
 
   " Cleanup of varialbes
